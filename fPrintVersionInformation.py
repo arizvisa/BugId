@@ -26,18 +26,18 @@ def fPrintProductDetails(oProductDetails, bIsMainProduct, bShowInstallationFolde
       NORMAL, ".",
     ]
   ));
-  if oProductDetails.oLatestProductVersion:
-    if oProductDetails.bVersionIsPreRelease:
-      oConsole.fPrint(
-        u"\u2502     You are running a ", HILITE, "pre-release", NORMAL, " version:",
-        " the latest released version is ", INFO, str(oProductDetails.oLatestProductVersion), NORMAL, ".",
-      );
-    elif not oProductDetails.bVersionIsUpToDate:
-      oConsole.fPrint(
-        u"\u2502     You are running an ", WARNING, "old", NORMAL, " version:",
-        " the latest released version is ", HILITE, str(oProductDetails.oLatestProductVersion), NORMAL, ",",
-        " available at ", HILITE, oProductDetails.oRepository.sLatestVersionURL, NORMAL, ".",
-      );
+  #if oProductDetails.oLatestProductVersion:
+  #  if oProductDetails.bVersionIsPreRelease:
+  #    oConsole.fPrint(
+  #      u"\u2502     You are running a ", HILITE, "pre-release", NORMAL, " version:",
+  #      " the latest released version is ", INFO, str(oProductDetails.oLatestProductVersion), NORMAL, ".",
+  #    );
+  #  elif not oProductDetails.bVersionIsUpToDate:
+  #    oConsole.fPrint(
+  #      u"\u2502     You are running an ", WARNING, "old", NORMAL, " version:",
+  #      " the latest released version is ", HILITE, str(oProductDetails.oLatestProductVersion), NORMAL, ",",
+  #      " available at ", HILITE, oProductDetails.oRepository.sLatestVersionURL, NORMAL, ".",
+  #    );
 
 def fasProductNamesOutput(asProductNames, uNormalColor):
   asOutput = [INFO, asProductNames[0]];
