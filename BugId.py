@@ -350,7 +350,7 @@ def fMain(asArguments):
   # Make sure the Python binary is up to date; we don't want our users to unknowingly run outdated software as this is
   # likely to cause unexpected issues.
   asVersionComponent = platform.python_version().split(".");
-  auExpectedVersionComponent = [2, 7, 14];
+  auExpectedVersionComponent = [2, 7, 15];
   for uIndex in xrange(3):
     uVersionComponent = long(asVersionComponent[uIndex]);
     if uVersionComponent < auExpectedVersionComponent[uIndex]:

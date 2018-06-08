@@ -14,15 +14,15 @@ def fPrintProductDetails(oProductDetails, bIsMainProduct, bShowInstallationFolde
       bShowInstallationFolders and [
         NORMAL, " installed at ", INFO, oProductDetails.sInstallationFolderPath,
       ] or [ ]
-    ) + (
-      not oProductDetails.oLicense and (
-        (oProductDetails.bHasTrialPeriod and oProductDetails.bInTrialPeriod) and [
-          NORMAL, " ", WARNING, "(in trial period)",
-        ] or [
-          NORMAL, " ", ERROR, "(no valid license found)",
-        ]
-      ) or []
-    ) + [
+    ) + ([
+     # not oProductDetails.oLicense and (
+     #   (oProductDetails.bHasTrialPeriod and oProductDetails.bInTrialPeriod) and [
+     #     NORMAL, " ", WARNING, "(in trial period)",
+     #   ] or [
+     #     NORMAL, " ", ERROR, "(no valid license found)",
+     #   ]
+     # ) or []
+    ]) + [
       NORMAL, ".",
     ]
   ));
@@ -53,7 +53,7 @@ def fPrintVersionInformation(bCheckForUpdates, bCheckAndShowLicenses, bShowInsta
   # Read product details for rs and all modules it uses.
   aoProductDetails = mProductDetails.faoGetProductDetailsForAllLoadedModules();
   oMainProductDetails = mProductDetails.foGetProductDetailsForMainModule();
-  if bCheckForUpdates:
+  if bCheckForUpdates and False:
     uCheckedProductCounter = 0;
     for oProductDetails in aoProductDetails:
       oConsole.fProgressBar(
