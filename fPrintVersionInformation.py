@@ -183,22 +183,23 @@ def fPrintVersionInformation(bCheckForUpdates, bCheckAndShowLicenses, bShowInsta
   finally:
     oConsole.fUnlock();
 
-  (asLicenseErrors, asLicenseWarnings) = mProductDetails.ftasGetLicenseErrorsAndWarnings();
-  if asLicenseErrors:
-    oConsole.fLock();
-    try:
-      oConsole.fPrint(ERROR, u"\u250C\u2500", ERROR_INFO, " Software license error ", ERROR, sPadding = u"\u2500");
-      for sLicenseError in asLicenseErrors:
-        oConsole.fPrint(ERROR, u"\u2502 ", ERROR_INFO, sLicenseError);
-      oConsole.fPrint(ERROR, u"\u2514", sPadding = u"\u2500");
-    finally:
-      oConsole.fUnlock();
-  if asLicenseWarnings:
-    oConsole.fLock();
-    try:
-      oConsole.fPrint(WARNING, u"\u250C\u2500", WARNING_INFO, " Software license warning ", WARNING, sPadding = u"\u2500");
-      for sLicenseWarning in asLicenseWarnings:
-        oConsole.fPrint(WARNING, u"\u2502 ", WARNING_INFO, sLicenseWarning);
-      oConsole.fPrint(WARNING, u"\u2514", sPadding = u"\u2500");
-    finally:
-      oConsole.fUnlock();
+  if not 'cracked':
+    (asLicenseErrors, asLicenseWarnings) = mProductDetails.ftasGetLicenseErrorsAndWarnings();
+    if asLicenseErrors:
+      oConsole.fLock();
+      try:
+        oConsole.fPrint(ERROR, u"\u250C\u2500", ERROR_INFO, " Software license error ", ERROR, sPadding = u"\u2500");
+        for sLicenseError in asLicenseErrors:
+          oConsole.fPrint(ERROR, u"\u2502 ", ERROR_INFO, sLicenseError);
+        oConsole.fPrint(ERROR, u"\u2514", sPadding = u"\u2500");
+      finally:
+        oConsole.fUnlock();
+    if asLicenseWarnings:
+      oConsole.fLock();
+      try:
+        oConsole.fPrint(WARNING, u"\u250C\u2500", WARNING_INFO, " Software license warning ", WARNING, sPadding = u"\u2500");
+        for sLicenseWarning in asLicenseWarnings:
+          oConsole.fPrint(WARNING, u"\u2502 ", WARNING_INFO, sLicenseWarning);
+        oConsole.fPrint(WARNING, u"\u2514", sPadding = u"\u2500");
+      finally:
+        oConsole.fUnlock();

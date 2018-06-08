@@ -706,27 +706,29 @@ def fMain(asArguments):
     # Apply and show result or errors:
     if not fbApplyConfigSetting(sSettingName, xValue, [None, ""][gbVerbose]):
       os._exit(2);
+
   # Check license
-  (asLicenseErrors, asLicenseWarnings) = mProductDetails.ftasGetLicenseErrorsAndWarnings();
-  if asLicenseErrors:
-    oConsole.fLock();
-    try:
-      oConsole.fPrint(ERROR, u"\u250C\u2500", ERROR_INFO, " Software license error ", ERROR, sPadding = u"\u2500");
-      for sLicenseError in asLicenseErrors:
-        oConsole.fPrint(ERROR, u"\u2502 ", ERROR_INFO, sLicenseError);
-      oConsole.fPrint(ERROR, u"\u2514", sPadding = u"\u2500");
-    finally:
-      oConsole.fUnlock();
-    os._exit(5);
-  if asLicenseWarnings:
-    oConsole.fLock();
-    try:
-      oConsole.fPrint(WARNING, u"\u250C\u2500", WARNING_INFO, " Software license warning ", WARNING, sPadding = u"\u2500");
-      for sLicenseWarning in asLicenseWarnings:
-        oConsole.fPrint(WARNING, u"\u2502 ", WARNING_INFO, sLicenseWarning);
-      oConsole.fPrint(WARNING, u"\u2514", sPadding = u"\u2500");
-    finally:
-      oConsole.fUnlock();
+  if not 'cracked':
+    (asLicenseErrors, asLicenseWarnings) = mProductDetails.ftasGetLicenseErrorsAndWarnings();
+    if asLicenseErrors:
+      oConsole.fLock();
+      try:
+        oConsole.fPrint(ERROR, u"\u250C\u2500", ERROR_INFO, " Software license error ", ERROR, sPadding = u"\u2500");
+        for sLicenseError in asLicenseErrors:
+          oConsole.fPrint(ERROR, u"\u2502 ", ERROR_INFO, sLicenseError);
+        oConsole.fPrint(ERROR, u"\u2514", sPadding = u"\u2500");
+      finally:
+        oConsole.fUnlock();
+      os._exit(5);
+    if asLicenseWarnings:
+      oConsole.fLock();
+      try:
+        oConsole.fPrint(WARNING, u"\u250C\u2500", WARNING_INFO, " Software license warning ", WARNING, sPadding = u"\u2500");
+        for sLicenseWarning in asLicenseWarnings:
+          oConsole.fPrint(WARNING, u"\u2502 ", WARNING_INFO, sLicenseWarning);
+        oConsole.fPrint(WARNING, u"\u2514", sPadding = u"\u2500");
+      finally:
+        oConsole.fUnlock();
   
   if bRepeat:
     sValidStatisticsFileName = mFileSystem.fsValidName("Reproduction statistics.txt");
@@ -806,8 +808,9 @@ def fMain(asArguments):
     oBugId.fAddEventCallback("Failed to apply process memory limits", fFailedToApplyProcessMemoryLimitsCallback);
     oBugId.fAddEventCallback("Failed to debug application", fFailedToDebugApplicationCallback);
     oBugId.fAddEventCallback("Internal exception", fInternalExceptionCallback);
-    oBugId.fAddEventCallback("License warnings", fLicenseWarningsCallback);
-    oBugId.fAddEventCallback("License errors", fLicenseErrorsCallback);
+    if not 'cracked':
+      oBugId.fAddEventCallback("License warnings", fLicenseWarningsCallback);
+      oBugId.fAddEventCallback("License errors", fLicenseErrorsCallback);
     oBugId.fAddEventCallback("Page heap not enabled", fPageHeapNotEnabledCallback);
     oBugId.fAddEventCallback("Process attached", fProcessAttachedCallback);
     oBugId.fAddEventCallback("Process started", fProcessStartedCallback);
