@@ -1,15 +1,15 @@
 [submodule "modules/mWindowsAPI"]
 	path = modules/mWindowsAPI
-	url = https://github.com/SkyLined/mWindowsAPI
+	url = https://github.com/arizvisa/BugId-mWindowsAPI
 [submodule "modules/oConsole"]
 	path = modules/oConsole
-	url = https://github.com/SkyLined/oConsole
+	url = https://github.com/arizvisa/BugId-oConsole
 [submodule "modules/cBugId"]
 	path = modules/cBugId
-	url = https://github.com/SkyLined/cBugId/
+	url = https://github.com/arizvisa/BugId-cBugId/
 [submodule "modules/mFileSystem"]
 	path = modules/mFileSystem
-	url = https://github.com/SkyLined/mFileSystem
+	url = https://github.com/arizvisa/BugId-mFileSystem
 [submodule "modules/mProductDetails"]
 	path = modules/mProductDetails
-	url = https://github.com/SkyLined/mProductDetails/
+	url = https://github.com/arizvisa/BugId-mProductDetails/
