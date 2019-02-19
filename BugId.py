@@ -338,6 +338,95 @@ def fBugReportCallback(oBugId, oBugReport):
   finally:
     oConsole.fUnlock();
 
+import argparse;
+def GodFuckingDammit_Boolean(sSettingName):
+  def check(value, sSettingName=sSettingName):
+    if value == 'true':
+      return True
+    elif value == 'false':
+      return False
+    oConsole.fPrint(ERROR, "- The value for ", ERROR_INFO, "--", sSettingName, ERROR, " must be \"true\" or \"false\".");
+    return None
+  return check
+
+def GodFuckingDammit_Repeat(sSettingName):
+  def check(sValue, sSettingName=sSettingName):
+    bRepeat = sValue is None or sValue.lower() != "false";
+    uNumberOfRepeats = long(sValue)
+    if bRepeat and sValue is not None:
+      try:
+        uNumberOfRepeats = long(sValue);
+        if uNumberOfRepeats < 2:
+          uNumberOfRepeats = None;
+        elif str(uNumberOfRepeats) != sValue:
+          uNumberOfRepeats = None;
+      except:
+        pass;
+      if uNumberOfRepeats is None:
+        oConsole.fPrint(ERROR, "- The value for ", ERROR_INFO, "--", sSettingName, ERROR, \
+            " must be an integer larger than 1 or \"false\".");
+    return uNumberOfRepeats
+  return check
+
+def GodFuckingDammit_Pids(sValue):
+  try:
+    return map(long, sValue.split(','))
+  except: pass
+  oConsole.fPrint(ERROR, "- You must provide at least one process id.");
+  oConsole.fCleanup();
+  os._exit(2);
+
+def GodFuckingDammit_AppPackageName(sSettingName):
+  def check(sValue, sSettingName=sSettingName):
+    if "!" not in sValue:
+      oConsole.fPrint(ERROR, "- Please provide a string of the form ", ERROR_INFO, sSettingName, "=<package name>!<application id>.");
+      oConsole.fCleanup();
+      os._exit(2);
+    return sValue.split("!", 1)
+  return check
+
+def GodFuckingDammit_symbolpath(sSettingName):
+  def check(sValue, sSettingName=sSettingName):
+    if sValue is None or not mFileSystem.fbIsFolder(sValue):
+      oConsole.fPrint(ERROR, "- The value for ", ERROR_INFO, "--", sSettingName, ERROR, " must be a valid path.");
+    return sValue
+  return check
+
+def GodFuckingDammit_error():
+  raise Exception("Testing internal error");
+
+def CmonDudeWhyTheFuckDoYouMakeItSoHard():
+  global gbQuiet, gbVerbose, guDefaultCollateralMaximumNumberOfBugs, guMaximumNumberOfBugs
+
+  P = argparse.ArgumentParser(description='Skylined does not know what he is doing...', add_help=False)
+  P.add_argument('-q', dest='gbQuiet', action='store_true', default=gbQuiet)
+  P.add_argument('-v', dest='gbVerbose', action='store_true', default=gbVerbose)
+  P.add_argument('-f', dest='bFast', action='store_true')
+  P.add_argument('-r', dest='bRepeat', action='store_true')
+  P.add_argument('-c', dest='guMaximumNumberOfBugs', action='store_const', const=guDefaultCollateralMaximumNumberOfBugs, default=guMaximumNumberOfBugs)
+  P.add_argument('-?', '-h', '--help', dest='fPrintUsageInformation', action='store_true')
+  
+  Gxor = P.add_mutually_exclusive_group()
+  Gxor.add_argument('--pid', '--pids', dest='auApplicationProcessIds', type=GodFuckingDammit_Pids, default=[])
+  Gxor.add_argument('--uwp', dest='sUWPApplicationPackageName', type=GodFuckingDammit_AppPackageName('uwp'))
+  Gxor.add_argument('--uwp-app', dest='sUWPApplicationPackageName', type=GodFuckingDammit_AppPackageName('uwp-app'))
+  Gxor.add_argument('--version', '--check-for-updates', dest='fPrintVersionInformation', action='store_true')
+  
+  P.add_argument('--isa', '--cpu', dest='sApplicationISA', choices=['x86','x64'])
+  P.add_argument('--quiet', dest='gbQuiet', choices=['true','false'], type=GodFuckingDammit_Boolean('quiet'))
+  P.add_argument('--silent', dest='gbQuiet', choices=['true','false'], type=GodFuckingDammit_Boolean('silent'))
+  P.add_argument('--verbose', dest='gbVerbose', choices=['true','false'], type=GodFuckingDammit_Boolean('verbose'))
+  P.add_argument('--debug', dest='gbVerbose', choices=['true','false'], type=GodFuckingDammit_Boolean('debug'))
+  P.add_argument('--fast', dest='bFast', choices=['true','false'], type=GodFuckingDammit_Boolean('fast'))
+  P.add_argument('--quick', dest='bFast', choices=['true','false'], type=GodFuckingDammit_Boolean('quick'))
+  P.add_argument('--forever', dest='bRepeat', choices=['true','false'], type=GodFuckingDammit_Boolean('quick'))
+  P.add_argument('--repeat', dest='bRepeat', type=GodFuckingDammit_Repeat('repeat'))
+  P.add_argument('--collateral', dest='guMaximumNumberOfBugs', type=lambda s: long(s)+1)
+  P.add_argument('--symbols', dest='asAdditionalLocalSymbolPaths', type=GodFuckingDammit_symbolpath('symbols'), default=[])
+  P.add_argument('--test-internal-error', '--internal-error-test', type=GodFuckingDammit_error)
+  
+  return P
+
 def fMain(asArguments):
   global \
       gasAttachToProcessesForExecutableNames, \
@@ -382,173 +471,26 @@ def fMain(asArguments):
   dxUserProvidedConfigSettings = {};
   asAdditionalLocalSymbolPaths = [];
   bFast = False;
-  while asArguments:
-    sArgument = asArguments.pop(0);
-    if sArgument == "--":
-      if len(auApplicationProcessIds) > 0:
-      # The rest of the arguments are to be passed to the application
-        oConsole.fPrint(ERROR, "- You cannot provide process ids and application arguments.");
+
+  ### Begin our intervention...because wtf dude...really?
+
+  P = CmonDudeWhyTheFuckDoYouMakeItSoHard()
+  args, leftover = P.parse_known_args(asArguments)
+  while leftover:
+    sArgument = leftover.pop(0)
+    if sArgument == '--':
+      break
+
+    if sArgument.startswith('--'):
+      sSettingName, sValue = sArgument[2:].split("=", 1);
+      try:
+        xValue = json.loads(sValue);
+      except ValueError as oError:
+        oConsole.fPrint(ERROR, "- Cannot decode argument JSON value ", ERROR_INFO, "--", sSettingName, "=", sValue, \
+                ERROR, ": ", ERROR_INFO, " ".join(oError.args), ERROR, ".");
         oConsole.fCleanup();
         os._exit(2);
-      asApplicationOptionalArguments = asArguments;
-      break;
-    elif sArgument in ["-q", "/q"]:
-      gbQuiet = True;
-    elif sArgument in ["-v", "/v"]:
-      gbVerbose = True;
-    elif sArgument in ["-f", "/f"]:
-      bFast = True;
-    elif sArgument in ["-r", "/r"]:
-      bRepeat = True;
-    elif sArgument in ["-c", "/c"]:
-      guMaximumNumberOfBugs = guDefaultCollateralMaximumNumberOfBugs;
-    elif sArgument in ["-?", "/?", "-h", "/h"]:
-      fPrintLogo();
-      fPrintUsageInformation(ddxApplicationSettings_by_sKeyword.keys());
-      oConsole.fCleanup();
-      os._exit(0);
-    elif sArgument.startswith("--"):
-      if "=" in sArgument:
-        sSettingName, sValue = sArgument[2:].split("=", 1);
-      else:
-        # "--bFlag" is an alias for "--bFlag=true"
-        sSettingName = sArgument[2:];
-        sValue = None;
-      
-      if sSettingName in ["pid", "pids"]:
-        if not sValue:
-          oConsole.fPrint(ERROR, "- You must provide at least one process id.");
-          oConsole.fCleanup();
-          os._exit(2);
-        if sApplicationBinaryPath is not None:
-          oConsole.fPrint(ERROR, "- You cannot provide an application binary and process ids.");
-          oConsole.fCleanup();
-          os._exit(2);
-        if sUWPApplicationPackageName is not None:
-          oConsole.fPrint(ERROR, "- You cannot provide an UWP application package name and process ids.");
-          oConsole.fCleanup();
-          os._exit(2);
-        auApplicationProcessIds += [long(x) for x in sValue.split(",")];
-      elif sSettingName in ["uwp", "uwp-app"]:
-        if not sValue:
-          oConsole.fPrint(ERROR, "- You must provide an UWP application package name.");
-          oConsole.fCleanup();
-          os._exit(2);
-        if sUWPApplicationPackageName is not None:
-          oConsole.fPrint(ERROR, "- You cannot provide multiple UWP application package names.");
-          oConsole.fCleanup();
-          os._exit(2);
-        if sApplicationBinaryPath is not None:
-          oConsole.fPrint(ERROR, "- You cannot provide an application binary and UWP package name.");
-          oConsole.fCleanup();
-          os._exit(2);
-        if len(auApplicationProcessIds) > 0:
-          oConsole.fPrint(ERROR, "- You cannot provide process ids and an UWP application package name.");
-          oConsole.fCleanup();
-          os._exit(2);
-        if "!" not in sValue:
-          oConsole.fPrint(ERROR, "- Please provide a string of the form ", ERROR_INFO, sSettingName, \
-              "=<package name>!<application id>.");
-          oConsole.fCleanup();
-          os._exit(2);
-        sUWPApplicationPackageName, sUWPApplicationId = sValue.split("!", 1);
-      elif sSettingName in ["help"]:
-        fPrintLogo();
-        fPrintUsageInformation(ddxApplicationSettings_by_sKeyword.keys());
-        oConsole.fCleanup();
-        os._exit(0);
-      elif sSettingName in ["version", "check-for-updates"]:
-        fPrintVersionInformation(
-          bCheckForUpdates = True,
-          bCheckAndShowLicenses = True,
-          bShowInstallationFolders = True,
-        );
-        oConsole.fCleanup();
-        os._exit(0);
-      elif sSettingName in ["isa", "cpu"]:
-        if not sValue:
-          oConsole.fPrint(ERROR, "- You must provide an Instruction Set Architecture.");
-          oConsole.fCleanup();
-          os._exit(2);
-        if sValue not in ["x86", "x64"]:
-          oConsole.fPrint(ERROR, "- Unknown Instruction Set Architecture ", repr(sValue));
-          oConsole.fCleanup();
-          os._exit(2);
-        sApplicationISA = sValue;
-      elif sSettingName in ["quiet", "silent"]:
-        if sValue is None or sValue.lower() == "true":
-          gbQuiet = True;
-        elif sValue.lower() == "false":
-          gbQuiet = False;
-        else:
-          oConsole.fPrint(ERROR, "- The value for ", ERROR_INFO, "--", sSettingName, ERROR, \
-              " must be \"true\" or \"false\".");
-      elif sSettingName in ["verbose", "debug"]:
-        if sValue is None or sValue.lower() == "true":
-          gbVerbose = True;
-        elif sValue.lower() == "false":
-          gbVerbose = False;
-        else:
-          oConsole.fPrint(ERROR, "- The value for ", ERROR_INFO, "--", sSettingName, ERROR, \
-              " must be \"true\" or \"false\".");
-      elif sSettingName in ["fast", "quick"]:
-        if sValue is None or sValue.lower() == "true":
-          bFast = True;
-        elif sValue.lower() == "false":
-          bFast = False;
-        else:
-          oConsole.fPrint(ERROR, "- The value for ", ERROR_INFO, "--", sSettingName, ERROR, \
-              " must be \"true\" or \"false\".");
-      elif sSettingName in ["forever"]:
-        if sValue is None or sValue.lower() == "true":
-          bRepeat = True;
-        elif sValue.lower() == "false":
-          bRepeat = False;
-        else:
-          oConsole.fPrint(ERROR, "- The value for ", ERROR_INFO, "--", sSettingName, ERROR, \
-              " must be \"true\" or \"false\".");
-      elif sSettingName in ["repeat"]:
-        bRepeat = sValue is None or sValue.lower() != "false";
-        if bRepeat and sValue is not None:
-          try:
-            uNumberOfRepeats = long(sValue);
-            if uNumberOfRepeats < 2:
-              uNumberOfRepeats = None;
-            elif str(uNumberOfRepeats) != sValue:
-              uNumberOfRepeats = None;
-          except:
-            pass;
-          if uNumberOfRepeats is None:
-            oConsole.fPrint(ERROR, "- The value for ", ERROR_INFO, "--", sSettingName, ERROR, \
-                " must be an integer larger than 1 or \"false\".");
-      elif sSettingName in ["collateral"]:
-        if sValue is None:
-          guMaximumNumberOfBugs = guDefaultCollateralMaximumNumberOfBugs;
-        else:
-          # -- collateral=1 means one collateral bug in addition to the first bug.
-          guMaximumNumberOfBugs = long(sValue) + 1;
-      elif sSettingName in ["symbols"]:
-        if sValue is None or not mFileSystem.fbIsFolder(sValue):
-          oConsole.fPrint(ERROR, "- The value for ", ERROR_INFO, "--", sSettingName, ERROR, \
-              " must be a valid path.");
-        asAdditionalLocalSymbolPaths.append(sValue);
-      elif sSettingName in ["test-internal-error", "internal-error-test"]:
-        raise Exception("Testing internal error");
-      else:
-        if not sValue:
-          oConsole.fPrint(ERROR, "- You cannot provide an argument (", ERROR_INFO, "--", sSettingName, ERROR, \
-              ") without a value.");
-          oConsole.fCleanup();
-          os._exit(2);
-        try:
-          xValue = json.loads(sValue);
-        except ValueError as oError:
-          oConsole.fPrint(ERROR, "- Cannot decode argument JSON value ", ERROR_INFO, "--", sSettingName, "=", sValue, \
-              ERROR, ": ", ERROR_INFO, " ".join(oError.args), ERROR, ".");
-          oConsole.fCleanup();
-          os._exit(2);
-        # User provided config settings must be applied after any keyword specific config settings:
-        dxUserProvidedConfigSettings[sSettingName] = xValue;
+      dxUserProvidedConfigSettings[sSettingName] = xValue;
     elif sArgument in ddxApplicationSettings_by_sKeyword:
       if sApplicationKeyword is not None:
         oConsole.fPrint(ERROR, "- You cannot provide multiple application keywords.");
@@ -565,26 +507,34 @@ def fMain(asArguments):
       fPrintApplicationKeyWordHelp(sApplicationKeyword, dxApplicationSettings);
       oConsole.fCleanup();
       os._exit(0);
-    else:
-      if sApplicationBinaryPath is not None:
-        oConsole.fLock();
-        try:
-          oConsole.fPrint(ERROR, "- You cannot provide multiple application binaries.");
-          oConsole.fPrint(ERROR, "  (Did you perhaps forget to put ", ERROR_INFO, "--", ERROR, \
-              " before the start of the application arguments?)");
-        finally:
-          oConsole.fUnlock();
-        oConsole.fCleanup();
-        os._exit(2);
-      if len(auApplicationProcessIds) > 0:
-        oConsole.fPrint(ERROR, "- You cannot provide process ids and an application binary.");
-        oConsole.fCleanup();
-        os._exit(2);
-      if sUWPApplicationPackageName is not None:
-        oConsole.fPrint(ERROR, "- You cannot provide an application UWP package name and a binary.");
-        oConsole.fCleanup();
-        os._exit(2);
-      sApplicationBinaryPath = sArgument;
+    continue
+
+  # now we can figure out our args
+  try:
+    sApplicationBinaryPath = leftover.pop(0)
+  except IndexError: pass
+
+  gbQuiet = args.gbQuiet
+  gbVerbose = args.gbVerbose
+  bFast = args.bFast
+  bRepeat = args.bRepeat
+  guMaximumNumberOfBugs = args.guMaximumNumberOfBugs
+  auApplicationProcessIds += args.auApplicationProcessIds
+  if args.sUWPApplicationPackageName:
+    sUWPApplicationPackageName, sUWPApplicationId = args.sUWPApplicationPackageName
+  if args.sUWPApplicationPackageName:
+    sApplicationISA = args.sApplicationISA
+  asAdditionalLocalSymbolPaths.extend(args.asAdditionalLocalSymbolPaths)
+
+  # if the user screamed, help them out by trying to appear like skylined...
+  if args.fPrintUsageInformation:
+    fPrintLogo();
+    fPrintUsageInformation(ddxApplicationSettings_by_sKeyword.keys());
+    oConsole.fCleanup();
+    os._exit(0);
+
+  asApplicationOptionalArguments = leftover
+  ### ...and back to our regularly scheduled programming.
   
   if bFast:
     gbQuiet = True;
